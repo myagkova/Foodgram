@@ -1,6 +1,10 @@
 version: '3.3'
 services:
-
+  web:
+    restart: always
+    build:
+      context: ../backend
+      dockerfile: /home/angelina/Yandex.Practicum/Dev/foodgram-project-react/Dockerfile
   frontend:
     build:
       context: ../frontend

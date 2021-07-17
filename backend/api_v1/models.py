@@ -1,6 +1,10 @@
+from django.utils import timezone
+
 from colorfield.fields import ColorField
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator
+from django.db.models import ForeignKey
 
 
 class CustomUser(AbstractUser):
@@ -24,32 +28,38 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор'
     )
-    title = models.CharField(
+    name = models.CharField(
         max_length=200,
         verbose_name='Название рецепта'
     )
-    picture = models.ImageField(upload_to='recipes')
+    image = models.ImageField(
+        upload_to='recipes',
+        null=True
+    )
     text = models.TextField(
         verbose_name='Описание',
     )
-    Ingredient = models.ForeignKey(
-        to='Ingredient',
-        related_name='ingredients',
-        on_delete=models.CASCADE,
-        verbose_name='Ингредиенты'
-    )
-    Tag = models.ForeignKey(
-        to='Tag',
+    tag = models.ManyToManyField(
+        to='Tag', blank=True,
         related_name='recipe_tag',
-        on_delete=models.CASCADE,
         verbose_name='Тег'
     )
-    Time = models.TimeField(
+    cooking_timetime = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), ],
         verbose_name='Время приготовления в минутах'
+    )
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Время публикации',
     )
 
     def __str__(self):
-        return self.title
+        return self.name
+
+    class Meta:
+        ordering = ['-pub_date']
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
 
 class Tag(models.Model):
@@ -71,10 +81,33 @@ class Ingredient(models.Model):
         max_length=200,
         verbose_name='Название продукта'
     )
-    amount = models.IntegerField(
-        verbose_name='Количество'
-    )
     units = models.CharField(
         max_length=50,
         verbose_name='Единицы измерения'
     )
+
+
+class IngredientInRecipe(models.Model):
+    ingredient = models.ForeignKey(
+        to='Ingredient',
+        max_length=200,
+        on_delete=models.CASCADE, blank=True,
+        verbose_name='Название продукта'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='ingredients',
+        verbose_name='Рецепт'
+    )
+    amount = models.IntegerField(
+        verbose_name='Количество'
+    )
+
+    class Meta:
+        verbose_name = 'Количество ингредиента в рецепте'
+        verbose_name_plural = verbose_name
+        unique_together = ['ingredient', 'recipe']
+
+    def __str__(self):
+        return f'{self.ingredient} в {self.recipe}'

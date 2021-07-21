@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from rest_framework.fields import CurrentUserDefault
 from .models import (CustomUser, Ingredient, IngredientInRecipe, FavoriteRecipes,
                      Recipe, Tag, TagsInRecipe)
 import logging
+from rest_framework.generics import get_object_or_404
 
 logging.basicConfig(level=logging.INFO)
 
@@ -98,7 +100,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     tags = TagsInRecipeSerializer(many=True, read_only=True)
-    #is_favorited = serializers.SerializerMethodField(method_name='conversion_bool')
+    is_favorited = serializers.SerializerMethodField(
+        method_name='conversion_bool')
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -144,7 +147,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def conversion_bool(self, obj):
+        user=self.context["request"].user
+        try:
+            FavoriteRecipes.objects.get(user=user, recipe=obj)
+            return True
+        except FavoriteRecipes.DoesNotExist:
+            return False
+
     class Meta:
         model = Recipe
         fields = ['id', 'tags', 'name', 'ingredients', 'author', 'image',
-                  'cooking_time', 'text']
+                   'is_favorited', 'cooking_time', 'text']

@@ -11,6 +11,7 @@ from .serializers import (CustomUserSerializer, RecipeSerializer,
                           TagSerializer, TagsInRecipeSerializer)
 from rest_framework.generics import get_object_or_404
 
+
 from djoser import views
 
 
@@ -35,7 +36,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['author', 'tags', 'is_favorited']
+    # search_fields = ['author', 'tags', 'is_favorited']
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def perform_create(self, serializer):
@@ -51,28 +52,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
             tags=self.request.data['tags']
         )
 
-    @action(methods=['get'], detail=True, permission_classes=[IsAuthenticated])
+
+    @action(methods=['get', 'delete'], detail=True,
+            permission_classes=[IsAuthenticated])
     def favorites(self, request, pk=None):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
         favorite = FavoriteRecipes.objects.filter(user=user, recipe=recipe)
-        if not favorite.exists():
-            new_favorite = FavoriteRecipes.objects.create(user=user,
+        print(request.method)
+        if request.method == 'GET':
+            if not favorite.exists():
+                new_favorite = FavoriteRecipes.objects.create(user=user,
                                                           recipe=recipe)
-            new_favorite.save()
-        serializer = RecipeSerializer(instance=recipe)
-        response_data = {}
-        response_data['id'] = serializer.data['id']
-        response_data['name'] = serializer.data['name']
-        response_data['image'] = serializer.data['image']
-        response_data['cooking_time'] = serializer.data['cooking_time']
-        return JsonResponse(response_data)
-
-
-
-
-
-
+                new_favorite.save()
+            serializer = RecipeSerializer(instance=recipe)
+            response_data = {}
+            response_data['id'] = serializer.data['id']
+            response_data['name'] = serializer.data['name']
+            response_data['image'] = serializer.data['image']
+            response_data['cooking_time'] = serializer.data['cooking_time']
+            return JsonResponse(response_data)
+        elif request.method == 'DELETE':
+            print('DELETE')
+            favorite.delete()
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):

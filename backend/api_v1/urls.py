@@ -10,7 +10,7 @@ router.register('recipes', RecipeViewSet)
 router.register('ingredients', IngredientViewSet)
 
 
-#router.register('favorites/<int:tag_id>', FavoriteRecipesViewSet)
+# router.register('recipes/<int:recipe_id>', RecipeViewSet)
 
 
 

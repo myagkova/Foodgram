@@ -20,8 +20,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    'backend.api_v1',
+    'api_v1',
     'colorfield',
+    # 'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -34,7 +35,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'backend.foodgram_api.urls'
+ROOT_URLCONF = 'foodgram_api.urls'
 
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 TEMPLATES = [
@@ -53,7 +54,7 @@ TEMPLATES = [
     },
 ]
 
-#WSGI_APPLICATION = 'api_yamdb.wsgi.application'
+WSGI_APPLICATION = 'foodgram_api.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -66,14 +67,14 @@ DATABASES = {
         'PORT': '',  # Set to empty string for default. Not used with sqlite3.
     }
 
-    #'default': {
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': os.environ.get('DB_NAME'),
-        # 'USER': os.environ.get('POSTGRES_USER'),
-        # 'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        # 'HOST': os.environ.get('DB_HOST'),
-        # 'PORT': os.environ.get('DB_PORT'),
-    #}
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.environ.get('DB_NAME'),
+    #     'USER': os.environ.get('POSTGRES_USER'),
+    #     'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+    #     'HOST': os.environ.get('DB_HOST'),
+    #     'PORT': os.environ.get('DB_PORT'),
+    # }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -135,15 +136,16 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'api_v1.CustomUser'
 
-DOMAIN_NAME = 'yamdb.ru'
+DOMAIN_NAME = 'foodgram.ru'
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 DEFAULT_FROM_EMAIL = f'admin@{DOMAIN_NAME}'
 
 DJOSER = {
-    'HIDE_USERS': True,
+    'HIDE_USERS': False,
     'PERMISSIONS': {
             'user_list': ['rest_framework.permissions.AllowAny'],
+            'user': ['rest_framework.permissions.AllowAny'],
     },
 }

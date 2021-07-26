@@ -18,7 +18,6 @@ from djoser.views import UserViewSet
 class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    # pagination_class = PageNumberPagination
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @action(methods=['get', 'delete'], detail=True)
@@ -145,9 +144,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ing_in_recipe = IngredientInRecipe.objects.filter(recipe=recipe)
             for ing in ing_in_recipe:
                 if ing in ingredients:
-                    ingredients[ing.ingredient.title] += ing.amount
+                    ingredients[ing.ingredient.name] += ing.amount
                 else:
-                    ingredients[ing.ingredient.title] = (ing.amount, ing.ingredient.units)
+                    ingredients[ing.ingredient.name] = (ing.amount, ing.ingredient.measurement_unit)
         print(ingredients)
         content = ''
         for k,v in ingredients.items():
@@ -160,8 +159,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
-    queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = None
+
+    def get_queryset(self):
+        print('INGREDIENT-FILTER')
+        queryset = Ingredient.objects.all()
+        name = self.request.query_params.get('name')
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset
 
 
 class TagViewSet(viewsets.ModelViewSet):

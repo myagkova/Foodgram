@@ -69,10 +69,10 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         return obj.ingredient.id
 
     def get_ingredient_name(self, obj):
-        return obj.ingredient.title
+        return obj.ingredient.name
 
     def get_ingredient_measurement_unit(self, obj):
-        return obj.ingredient.units
+        return obj.ingredient.measurement_unit
 
     class Meta:
         model = IngredientInRecipe

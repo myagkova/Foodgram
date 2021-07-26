@@ -8,9 +8,9 @@ from django.db.models import ForeignKey
 
 
 class CustomUser(AbstractUser):
-
+    email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'username']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
 
     def __str__(self):
         return self.username
@@ -72,12 +72,12 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    title = models.CharField(
+    name = models.CharField(
         max_length=200,
         verbose_name='Название продукта'
 
     )
-    units = models.CharField(
+    measurement_unit = models.CharField(
         max_length=50,
         verbose_name='Единицы измерения'
     )

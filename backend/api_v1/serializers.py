@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.fields import CurrentUserDefault
 from .models import (CustomUser, Follow, Ingredient, IngredientInRecipe,
                      FavoriteRecipes, ShoppingCart, Recipe, Tag, TagsInRecipe)
 import logging

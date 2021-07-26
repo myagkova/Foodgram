@@ -143,6 +143,7 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 DEFAULT_FROM_EMAIL = f'admin@{DOMAIN_NAME}'
 
 DJOSER = {
+    "LOGIN_FIELD": "email",
     'HIDE_USERS': False,
     'PERMISSIONS': {
             'user_list': ['rest_framework.permissions.AllowAny'],

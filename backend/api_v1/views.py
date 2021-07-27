@@ -86,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get', 'delete'], detail=True,
             permission_classes=[IsAuthenticated])
-    def favorites(self, request, pk=None):
+    def favorite(self, request, pk=None):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
         favorite = FavoriteRecipes.objects.filter(user=user, recipe=recipe)

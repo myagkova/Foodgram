@@ -5,11 +5,12 @@ import logging
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework.generics import get_object_or_404
 
+# from drf_extra_fields.fields import Base64ImageField
+
 logging.basicConfig(level=logging.INFO)
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
-
     email = serializers.SerializerMethodField('get_email')
     id = serializers.SerializerMethodField('get_id')
     username = serializers.SerializerMethodField('get_username')
@@ -89,7 +90,7 @@ class TagsInRecipeSerializer(serializers.ModelSerializer):
         return obj.tag.id
 
     def get_tag_name(self, obj):
-        return obj.tag.title
+        return obj.tag.name
 
     def get_tag_color(self, obj):
         return obj.tag.color
@@ -102,6 +103,38 @@ class TagsInRecipeSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'color', 'slug']
 
 
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        from django.core.files.base import ContentFile
+        import base64
+        import six
+        import uuid
+        if isinstance(data, six.string_types):
+            if 'data:' in data and ';base64,' in data:
+                header, data = data.split(';base64,')
+            try:
+                decoded_file = base64.b64decode(data)
+            except TypeError:
+                self.fail('invalid_image')
+            file_name = str(uuid.uuid4())[
+                        :12]
+            file_extension = self.get_file_extension(file_name, decoded_file)
+
+            complete_file_name = "%s.%s" % (file_name, file_extension,)
+
+            data = ContentFile(decoded_file, name=complete_file_name)
+
+        return super(Base64ImageField, self).to_internal_value(data)
+
+    def get_file_extension(self, file_name, decoded_file):
+        import imghdr
+
+        extension = imghdr.what(file_name, decoded_file)
+        extension = "jpg" if extension == "jpeg" else extension
+
+        return extension
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
@@ -110,6 +143,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         method_name='conversion_bool')
     is_in_shopping_cart = serializers.SerializerMethodField(
         method_name='is_recipe_in_shopping_cart')
+    image = Base64ImageField(
+        max_length=None, use_url=True,
+    )
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -130,8 +166,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
-        print(ingredients_data)
-
         instance.name = validated_data.get('name', instance.name)
         instance.image = validated_data.get('name', instance.image)
         instance.text = validated_data.get('text', instance.text)
@@ -174,7 +208,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ['id', 'tags', 'name', 'ingredients', 'author', 'image',
-                   'is_favorited', 'is_in_shopping_cart', 'cooking_time', 'text']
+                  'is_favorited', 'is_in_shopping_cart', 'cooking_time', 'text']
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -216,5 +250,3 @@ class FollowSerializer(serializers.ModelSerializer):
         if self.context['request'].user != data['following']:
             return data
         raise serializers.ValidationError("Нельзя подписаться на самого себя")
-
-

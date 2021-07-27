@@ -25,7 +25,6 @@ class UserViewSet(UserViewSet):
         user = self.request.user
         following = get_object_or_404(CustomUser, id=id)
         follow = Follow.objects.filter(user=user, following=following)
-        print(request.method)
         if request.method == 'GET':
             if not follow.exists():
                 new_follow = Follow.objects.create(user=user,
@@ -96,7 +95,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 new_favorite = FavoriteRecipes.objects.create(user=user,
                                                               recipe=recipe)
                 new_favorite.save()
-            serializer = RecipeSerializer(instance=recipe)
+            serializer = RecipeSerializer(instance=recipe,
+                                          context={'request': request})
             response_data = {}
             response_data['id'] = serializer.data['id']
             response_data['name'] = serializer.data['name']
@@ -147,7 +147,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     ingredients[ing.ingredient.name] += ing.amount
                 else:
                     ingredients[ing.ingredient.name] = (ing.amount, ing.ingredient.measurement_unit)
-        print(ingredients)
         content = ''
         for k,v in ingredients.items():
             nl = '\n'
@@ -164,7 +163,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        print('INGREDIENT-FILTER')
         queryset = Ingredient.objects.all()
         name = self.request.query_params.get('name')
         if name is not None:
@@ -175,3 +173,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = None
+
+

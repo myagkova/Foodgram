@@ -1,10 +1,7 @@
-from django.utils import timezone
-
 from colorfield.fields import ColorField
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
-from django.db.models import ForeignKey
 
 
 class CustomUser(AbstractUser):
@@ -33,8 +30,7 @@ class Recipe(models.Model):
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
-        upload_to='recipes',
-        null=True
+        upload_to='recipes'
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -58,7 +54,7 @@ class Recipe(models.Model):
 
 
 class Tag(models.Model):
-    title = models.CharField(
+    name = models.CharField(
         max_length=200,
         unique=True,
         verbose_name='Название тега'

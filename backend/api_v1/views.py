@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse
 from .permissions import IsNotAuthenticated
 from rest_framework.permissions import IsAuthenticated, \
@@ -65,18 +66,15 @@ class IngredientInRecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-class TagsInRecipe(viewsets.ModelViewSet):
-    queryset = TagsInRecipe.objects.all()
-    serializer_class = TagsInRecipeSerializer
+# class TagsInRecipe(viewsets.ModelViewSet):
+#     queryset = TagsInRecipe.objects.all()
+#     serializer_class = TagsInRecipeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
-    filter_backends = (DjangoFilterBackend,)
-    # filter_class = RecipeFilter
-    # filterset_fields = ['author', 'tag' ]
 
     def perform_create(self, serializer):
         serializer.save(
@@ -92,12 +90,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        print('FAVORITE__FILTER')
         queryset = Recipe.objects.all()
         is_favorited = self.request.query_params.get('is_favorited')
         if is_favorited and self.request.user.is_authenticated:
-            print('IS_FAVORITED_TRUE')
             queryset = queryset.filter(is_favorited__user=self.request.user)
+
+        tags = self.request.query_params.getlist('tags')
+        if (len(tags) != 0):
+            recipes_with_tags = TagsInRecipe.objects.filter(
+                tag__slug__in=tags).values_list("recipe", flat=True)
+            queryset = queryset.filter(id__in=recipes_with_tags)
         return queryset
 
     @action(methods=['get', 'delete'], detail=True,

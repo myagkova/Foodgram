@@ -14,8 +14,7 @@ from .models import (CustomUser, FavoriteRecipes, Follow, Ingredient,
 from .permissions import IsOwnerProfileOrReadOnly
 from .serializers import (CustomUserSerializer, FollowSerializer,
                           IngredientInRecipeSerializer, IngredientSerializer,
-                          RecipeSerializer, TagSerializer,
-                          TagsInRecipeSerializer)
+                          RecipeSerializer, TagSerializer)
 
 
 class UserViewSet(UserViewSet):
@@ -60,11 +59,6 @@ class IngredientInRecipeViewSet(viewsets.ModelViewSet):
     queryset = IngredientInRecipe.objects.all()
     serializer_class = IngredientInRecipeSerializer
     permission_classes = [IsAuthenticated]
-
-
-# class TagsInRecipe(viewsets.ModelViewSet):
-#     queryset = TagsInRecipe.objects.all()
-#     serializer_class = TagsInRecipeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

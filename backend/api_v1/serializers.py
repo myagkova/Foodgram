@@ -1,14 +1,17 @@
-from rest_framework import serializers
-from .models import (CustomUser, Follow, Ingredient, IngredientInRecipe,
-                     FavoriteRecipes, ShoppingCart, Recipe, Tag, TagsInRecipe)
-import logging
-from rest_framework.validators import UniqueTogetherValidator
-from django.core.files.base import ContentFile
 import base64
-import six
-import uuid
 import imghdr
+import logging
+import uuid
+
+import six
 from django.contrib.auth.models import AnonymousUser
+from django.core.files.base import ContentFile
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
+from .models import (CustomUser, FavoriteRecipes, Follow, Ingredient,
+                     IngredientInRecipe, Recipe, ShoppingCart, Tag,
+                     TagsInRecipe)
 
 logging.basicConfig(level=logging.INFO)
 

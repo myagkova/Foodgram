@@ -1,22 +1,21 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse
-from .permissions import IsNotAuthenticated
-from rest_framework.permissions import IsAuthenticated, \
-    IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import RecipeFilter
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.decorators import action
-from rest_framework import filters, viewsets, status
-from .models import (CustomUser, Follow, Ingredient, IngredientInRecipe,
-                     FavoriteRecipes, Recipe, ShoppingCart, Tag, TagsInRecipe)
-from .serializers import ( CustomUserSerializer,
-                          RecipeSerializer, FollowSerializer,
-                          IngredientSerializer,
-                          IngredientInRecipeSerializer,
-                          TagSerializer, TagsInRecipeSerializer)
-from rest_framework.generics import get_object_or_404
 from djoser.views import UserViewSet
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+
+from .models import (CustomUser, FavoriteRecipes, Follow, Ingredient,
+                     IngredientInRecipe, Recipe, ShoppingCart, Tag,
+                     TagsInRecipe)
+from .permissions import IsOwnerProfileOrReadOnly
+from .serializers import (CustomUserSerializer, FollowSerializer,
+                          IngredientInRecipeSerializer, IngredientSerializer,
+                          RecipeSerializer, TagSerializer,
+                          TagsInRecipeSerializer)
 
 
 class UserViewSet(UserViewSet):
@@ -53,11 +52,8 @@ class UserViewSet(UserViewSet):
         result_page = paginator.paginate_queryset(following, request)
         serializer = FollowSerializer(result_page, context={'request': request},
                                     many=True)
-        # serializer = FollowSerializer(instance=following,
-        #                                 context={'request': request}, many=True)
         print(serializer.data)
         return paginator.get_paginated_response(serializer.data)
-        # return JsonResponse(serializer.data, safe=False)
 
 
 class IngredientInRecipeViewSet(viewsets.ModelViewSet):
@@ -126,7 +122,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get', 'delete'], detail=True,
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsOwnerProfileOrReadOnly])
     def shopping_cart(self, request, pk=None):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -149,7 +145,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False,
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsOwnerProfileOrReadOnly])
     def download_shopping_cart(self, request, pk=None):
         user = self.request.user
         filename = "shopping_list.txt"

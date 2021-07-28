@@ -21,7 +21,7 @@ class CustomUser(AbstractUser):
 class Recipe(models.Model):
     author = models.ForeignKey(
         to='CustomUser',
-        related_name='recipe',
+        related_name='recipes',
         on_delete=models.CASCADE,
         verbose_name='Автор'
     )
@@ -30,7 +30,8 @@ class Recipe(models.Model):
         verbose_name='Название рецепта'
     )
     image = models.ImageField(
-        upload_to='recipes'
+        upload_to='recipes',
+        null=True
     )
     text = models.TextField(
         verbose_name='Описание',

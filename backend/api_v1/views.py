@@ -1,6 +1,9 @@
 from django.http import HttpResponse, JsonResponse
+from .permissions import IsNotAuthenticated
 from rest_framework.permissions import IsAuthenticated, \
     IsAuthenticatedOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import RecipeFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import action
 from rest_framework import filters, viewsets, status
@@ -51,6 +54,7 @@ class UserViewSet(UserViewSet):
                                     many=True)
         # serializer = FollowSerializer(instance=following,
         #                                 context={'request': request}, many=True)
+        print(serializer.data)
         return paginator.get_paginated_response(serializer.data)
         # return JsonResponse(serializer.data, safe=False)
 
@@ -70,6 +74,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    # filter_class = RecipeFilter
+    # filterset_fields = ['author', 'tag' ]
 
     def perform_create(self, serializer):
         serializer.save(
@@ -83,6 +90,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredients=self.request.data['ingredients'],
             tags=self.request.data['tags']
         )
+
+    def get_queryset(self):
+        print('FAVORITE__FILTER')
+        queryset = Recipe.objects.all()
+        is_favorited = self.request.query_params.get('is_favorited')
+        if is_favorited and self.request.user.is_authenticated:
+            print('IS_FAVORITED_TRUE')
+            queryset = queryset.filter(is_favorited__user=self.request.user)
+        return queryset
 
     @action(methods=['get', 'delete'], detail=True,
             permission_classes=[IsAuthenticated])
@@ -175,5 +191,3 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
-
-

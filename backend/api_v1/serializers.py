@@ -3,9 +3,12 @@ from .models import (CustomUser, Follow, Ingredient, IngredientInRecipe,
                      FavoriteRecipes, ShoppingCart, Recipe, Tag, TagsInRecipe)
 import logging
 from rest_framework.validators import UniqueTogetherValidator
-from rest_framework.generics import get_object_or_404
-
-# from drf_extra_fields.fields import Base64ImageField
+from django.core.files.base import ContentFile
+import base64
+import six
+import uuid
+import imghdr
+from django.contrib.auth.models import AnonymousUser
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,6 +39,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def get_subscription(self, obj):
         user = self.context['request'].user
+        if user.is_anonymous:
+            return False
         try:
             Follow.objects.get(user=user, following=obj)
             return True
@@ -105,10 +110,6 @@ class TagsInRecipeSerializer(serializers.ModelSerializer):
 
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
-        from django.core.files.base import ContentFile
-        import base64
-        import six
-        import uuid
         if isinstance(data, six.string_types):
             if 'data:' in data and ';base64,' in data:
                 header, data = data.split(';base64,')
@@ -123,7 +124,6 @@ class Base64ImageField(serializers.ImageField):
         return super(Base64ImageField, self).to_internal_value(data)
 
     def get_file_extension(self, file_name, decoded_file):
-        import imghdr
         extension = imghdr.what(file_name, decoded_file)
         extension = "jpg" if extension == "jpeg" else extension
         return extension
@@ -183,6 +183,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def conversion_bool(self, obj):
         user = self.context["request"].user
+        if user.is_anonymous:
+            return False
         try:
             FavoriteRecipes.objects.get(user=user, recipe=obj)
             return True
@@ -191,6 +193,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def is_recipe_in_shopping_cart(self, obj):
         user = self.context["request"].user
+        if user.is_anonymous:
+            return False
         try:
             ShoppingCart.objects.get(user=user, recipe=obj)
             return True
@@ -212,7 +216,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(
         method_name='is_user_subscribed')
-    recipe = ShortRecipeSerializer(many=True, read_only=True)
+    recipes = ShortRecipeSerializer(many=True, read_only=True)
     recipes_count = serializers.SerializerMethodField(
         method_name='get_recipes_count')
 
@@ -225,11 +229,11 @@ class FollowSerializer(serializers.ModelSerializer):
             return False
 
     def get_recipes_count(self, obj):
-        return obj.recipe.count()
+        return obj.recipes.count()
 
     class Meta:
         fields = ['email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed', 'recipe', 'recipes_count']
+                  'is_subscribed', 'recipes', 'recipes_count']
         model = CustomUser
         validators = [
             UniqueTogetherValidator(

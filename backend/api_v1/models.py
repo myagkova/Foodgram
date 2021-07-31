@@ -9,13 +9,13 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
 
-    def __str__(self):
-        return self.username
-
     class Meta:
         ordering = ['id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
 
 
 class Recipe(models.Model):
@@ -31,7 +31,8 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         upload_to='recipes',
-        null=True
+        null=True,
+        verbose_name='Картинка'
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -45,13 +46,13 @@ class Recipe(models.Model):
         verbose_name='Время публикации',
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
 
 
 class Tag(models.Model):
@@ -60,12 +61,19 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Название тега'
     )
-    color = ColorField(default='#ffffff')
+    color = ColorField(
+        default='#ffffff',
+        verbose_name='Цвет тега'
+        )
     slug = models.CharField(
         max_length=200,
         unique=True,
         verbose_name='Название тега(английский)'
     )
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
 
 
 class Ingredient(models.Model):
@@ -78,6 +86,10 @@ class Ingredient(models.Model):
         max_length=50,
         verbose_name='Единицы измерения'
     )
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
 
 class IngredientInRecipe(models.Model):
@@ -93,14 +105,17 @@ class IngredientInRecipe(models.Model):
         related_name='ingredients',
         verbose_name='Рецепт'
     )
-    amount = models.IntegerField(
+    amount = models.PositiveIntegerField(
         verbose_name='Количество'
     )
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['ingredient', 'recipe'],
+                                    name='unique-in-module')
+        ]
         verbose_name = 'Количество ингредиента в рецепте'
-        verbose_name_plural = verbose_name
-        unique_together = ['ingredient', 'recipe']
+        verbose_name_plural = 'Количество ингредиентов в рецепте'
 
     def __str__(self):
         return f'{self.ingredient} в {self.recipe}'
@@ -111,6 +126,7 @@ class TagsInRecipe(models.Model):
         to='Tag',
         max_length=200,
         on_delete=models.CASCADE, blank=True,
+        related_name='tags_in_recipe',
         verbose_name='Название тега'
     )
     recipe = models.ForeignKey(
@@ -120,43 +136,64 @@ class TagsInRecipe(models.Model):
         verbose_name='Рецепт'
     )
 
+    class Meta:
+        verbose_name = 'Тег рецепта'
+        verbose_name_plural = 'Теги рецепта'
 
-class FavoriteRecipes(models.Model):
+
+class FavoriteRecipe(models.Model):
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name='favorite_recipe_for_user',
+        verbose_name='Автор рецепта'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='is_favorited',
+        verbose_name='Рецепт'
     )
+
+    class Meta:
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
 
 
 class Follow(models.Model):
     user = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="follower"
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Пользователь'
     )
     following = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="following"
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор, на которого подписан'
     )
 
     class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "following"], name="unique_following"
+                fields=['user', 'following'], name='unique_following'
             )
         ]
 
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE,
-        related_name='purchases', verbose_name='Пользователь')
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='purchases',
+        verbose_name='Пользователь')
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE,
-        related_name='customers', verbose_name='Покупка')
+        related_name='customer',
+        verbose_name='Покупка')
 
     class Meta:
         verbose_name = 'Покупка'

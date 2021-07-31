@@ -9,15 +9,15 @@ class UserAdmin(admin.ModelAdmin):
 
 
 @admin.register(Tag)
-class UserAdmin(admin.ModelAdmin):
+class TagAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Recipe)
-class UserAdmin(admin.ModelAdmin):
+class RecipeAdmin(admin.ModelAdmin):
     pass
 
 
 @admin.register(Ingredient)
-class UserAdmin(admin.ModelAdmin):
+class IngredientAdmin(admin.ModelAdmin):
     pass

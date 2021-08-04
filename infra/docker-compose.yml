@@ -10,9 +10,9 @@ services:
   backend:
     image: gelyamolodets/foodgram:latest
     restart: always
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+#    build:
+#      context: ../backend
+#      dockerfile: Dockerfile
     ports:
         - 8000:8000
     volumes:
@@ -45,6 +45,7 @@ services:
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
 
 volumes:
+  result_build:
   postgres_data:
   static_value:
   media_value:

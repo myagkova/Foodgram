@@ -23,9 +23,10 @@ services:
     env_file:
       - .env
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: gelyamolodets/foodgram_frontend
+#    build:
+#      context: ../frontend
+#      dockerfile: Dockerfile
     depends_on:
       - db
     volumes:

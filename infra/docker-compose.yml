@@ -3,7 +3,7 @@ services:
   db:
     image: postgres:12.4
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data2:/var/lib/postgresql/data/
     env_file:
       - .env
     restart: always
@@ -47,6 +47,6 @@ services:
 
 volumes:
   result_build:
-  postgres_data:
+  postgres_data2:
   static_value:
   media_value:

@@ -1,9 +1,9 @@
 version: '3.3'
 services:
   db:
-    image: postgres:12.4
+    image: postgres:13
     volumes:
-      - postgres_data2:/var/lib/postgresql/data/
+      - postgres_data_new:/var/lib/postgresql/data/
     env_file:
       - .env
     restart: always
@@ -47,6 +47,6 @@ services:
 
 volumes:
   result_build:
-  postgres_data2:
+  postgres_data_new:
   static_value:
   media_value:

@@ -19,7 +19,6 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('name', 'author', 'tags')
     list_display = ('is_favorited')
 
-    @admin.display(empty_value=None)
     def is_favorited(self, obj):
         return obj.is_favorited.all().count()
 

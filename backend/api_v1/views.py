@@ -63,7 +63,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
-    filterset_fields = ['is_favorited', 'tags', ]
+    filterset_fields = ['is_favorited', 'is_in_shopping_cart', 'tags', ]
 
     def perform_create(self, serializer):
         serializer.save(

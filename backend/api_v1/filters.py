@@ -5,16 +5,25 @@ from .models import Ingredient, Recipe, TagsInRecipe
 
 class RecipeFilter(django_filters.FilterSet):
     is_favorited = django_filters.CharFilter(method='is_favorited_filter')
+    is_in_shopping_cart = django_filters.CharFilter(
+        method='is_in_shopping_cart_filter')
     tags = django_filters.CharFilter(method='tags_filter')
 
     class Meta:
         model = Recipe
-        fields = ['is_favorited', 'tags']
+        fields = ['is_favorited', 'is_in_shopping_cart', 'tags']
 
     def is_favorited_filter(self, queryset, name, value):
         is_favorited = self.request.query_params.get('is_favorited')
         if is_favorited and self.request.user.is_authenticated:
             return queryset.filter(is_favorited__user=self.request.user)
+        return Recipe.objects.none()
+
+    def is_in_shopping_cart_filter(self, queryset, name, value):
+        is_in_shopping_cart = self.request.query_params.get(
+            'is_in_shopping_cart')
+        if is_in_shopping_cart and self.request.user.is_authenticated:
+            return queryset.filter(is_in_shopping_cart__user=self.request.user)
         return Recipe.objects.none()
 
     def tags_filter(self, queryset, name, value):

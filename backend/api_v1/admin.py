@@ -16,7 +16,7 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_filter = ('name', 'author', 'tags__name')
+    list_filter = ('name', 'author', 'tags')
     list_display = ('is_favorited', )
 
     def is_favorited(self, obj):

@@ -23,7 +23,7 @@ class RecipeFilter(django_filters.FilterSet):
         is_in_shopping_cart = self.request.query_params.get(
             'is_in_shopping_cart')
         if is_in_shopping_cart and self.request.user.is_authenticated:
-            return queryset.filter(is_in_shopping_cart__user=self.request.user)
+            return queryset.filter(customer__user=self.request.user)
         return Recipe.objects.none()
 
     def tags_filter(self, queryset, name, value):

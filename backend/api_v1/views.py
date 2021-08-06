@@ -97,7 +97,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get', 'delete'], detail=True,
-            permission_classes=[IsOwnerProfileOrReadOnly])
+            permission_classes=[IsAuthenticatedOrReadOnly])
     def shopping_cart(self, request, pk=None):
         user = self.request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -115,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False,
-            permission_classes=[IsOwnerProfileOrReadOnly])
+            permission_classes=[IsAuthenticatedOrReadOnly])
     def download_shopping_cart(self, request, pk=None):
         filename = 'shopping_list.txt'
         recipes = Recipe.objects.filter(customer__user=request.user)

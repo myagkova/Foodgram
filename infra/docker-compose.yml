@@ -10,11 +10,6 @@ services:
   backend:
     image: gelyamolodets/foodgram:latest
     restart: always
-#    build:
-#      context: ../backend
-#      dockerfile: Dockerfile
-    ports:
-        - 8000:8000
     volumes:
       - static_value:/code/static/
       - media_value:/code/media/
@@ -24,9 +19,6 @@ services:
       - .env
   frontend:
     image: gelyamolodets/foodgram_frontend
-#    build:
-#      context: ../frontend
-#      dockerfile: Dockerfile
     depends_on:
       - db
     volumes:

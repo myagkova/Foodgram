@@ -73,12 +73,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
+        for ingredient in ingredients_data:
+            if ingredient['amount'] < 0:
+                raise serializers.ValidationError(
+                    'Введите целое число больше 0 для количества ингредиента')
         tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient_json in ingredients_data:
-            if ingredient_json['amount'] < 0:
-                raise serializers.ValidationError(
-                    'Введите целое число больше 0 для количества ингредиента')
             ingredient = get_object_or_404(Ingredient, id=ingredient_json['id'])
             IngredientInRecipe.objects.create(
                 recipe=recipe,

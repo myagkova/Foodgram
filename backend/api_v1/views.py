@@ -11,7 +11,7 @@ from rest_framework.permissions import (IsAuthenticated,
 from .filters import IngredientFilter, RecipeFilter
 from .models import (CustomUser, FavoriteRecipe, Follow, Ingredient,
                      IngredientInRecipe, Recipe, ShoppingCart, Tag)
-from .permissions import IsOwnerProfileOrReadOnly
+from .paginations import StandardResultsSetPagination
 from .serializers import (CustomUserSerializer, FollowSerializer,
                           IngredientInRecipeSerializer, IngredientSerializer,
                           RecipeSerializer, ShortRecipeSerializer,
@@ -64,10 +64,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
     filterset_fields = ['is_favorited', 'is_in_shopping_cart', 'tags', ]
-    pagination_class = PageNumberPagination
-    paginate_by = 6
-    paginate_by_param = 'limit'
-    max_paginate_by = 1000
+    pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
         serializer.save(

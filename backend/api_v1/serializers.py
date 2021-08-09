@@ -39,11 +39,9 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(read_only=True, source='ingredient.name')
-    amount = serializers.IntegerField(
-        error_messages={
-            'invalid': 'Количество ингредиента должно быть в формате целого числа'
-        }
-    )
+    amount = serializers.IntegerField(error_messages={
+        'invalid': 'Количество ингредиента должно быть в формате целого числа'
+        })
     measurement_unit = serializers.CharField(read_only=True, source=
                                              'ingredient.measurement_unit')
 
@@ -74,23 +72,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     tags = TagsInRecipeSerializer(many=True, read_only=True)
-    cooking_time = serializers.IntegerField(
-        error_messages={
+    cooking_time = serializers.IntegerField(error_messages={
             'invalid': 'Время приготовления должно быть в формате целого числа'
-        }
-    )
+        })
     is_favorited = serializers.SerializerMethodField(
         method_name='conversion_bool')
     is_in_shopping_cart = serializers.SerializerMethodField(
         method_name='is_recipe_in_shopping_cart')
     image = Base64ImageField(max_length=None, use_url=True)
-
-    def validate_cooking_time(self, data):
-        if data < 1:
-            raise serializers.ValidationError(
-                'Введите целое число больше 0 для времени приготовления'
-            )
-        return data
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -133,6 +122,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+    def validate_cooking_time(self, data):
+        if data < 1:
+            raise serializers.ValidationError(
+                'Введите целое число больше 0 для времени приготовления'
+            )
+        return data
 
     def conversion_bool(self, obj):
         user = self.context['request'].user

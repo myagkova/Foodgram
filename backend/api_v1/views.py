@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
@@ -58,6 +59,10 @@ class IngredientInRecipeViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientInRecipeSerializer
     permission_classes = [IsAuthenticated]
 
+class InvalidAmountException(APIException):
+    status_code = 400
+    default_detail = 'Введите целое число больше 0 для количества ингредиента'
+
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
@@ -71,9 +76,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         ingredients_data = self.request.data['ingredients']
         for ingredient in ingredients_data:
-            if ingredient['amount'] < 0:
-                raise ValidationError(
-                    'Введите целое число больше 0 для количества ингредиента')
+            if int(ingredient['amount']) < 0:
+                raise InvalidAmountException()
 
         serializer.save(
             author=self.request.user,

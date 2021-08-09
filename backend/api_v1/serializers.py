@@ -39,9 +39,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(read_only=True, source='ingredient.name')
-    amount = serializers.IntegerField(error_messages={
-        'invalid': 'Количество ингредиента должно быть в формате целого числа'
-        })
+    amount = serializers.IntegerField()
     measurement_unit = serializers.CharField(read_only=True, source=
                                              'ingredient.measurement_unit')
 

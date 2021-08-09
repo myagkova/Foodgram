@@ -64,6 +64,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filter_class = RecipeFilter
     filterset_fields = ['is_favorited', 'is_in_shopping_cart', 'tags', ]
+    paginate_by = 6
     paginate_by_param = 'limit'
     max_paginate_by = 1000
 

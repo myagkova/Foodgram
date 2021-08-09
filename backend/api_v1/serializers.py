@@ -62,11 +62,23 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     tags = TagsInRecipeSerializer(many=True, read_only=True)
+    cooking_time = serializers.IntegerField(
+        error_messages={
+            'invalid': 'Время готовки должно быть в формате целого числа'
+        }
+    )
     is_favorited = serializers.SerializerMethodField(
         method_name='conversion_bool')
     is_in_shopping_cart = serializers.SerializerMethodField(
         method_name='is_recipe_in_shopping_cart')
     image = Base64ImageField(max_length=None, use_url=True)
+
+    def validate_cooking_time(self, data):
+        if data < 1:
+            raise serializers.ValidationError(
+                'Введите целое число больше 0 для времени готовки'
+            )
+        return data
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')

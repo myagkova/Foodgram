@@ -39,8 +39,20 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(read_only=True, source='ingredient.name')
+    amount = serializers.IntegerField(
+        error_messages={
+            'invalid': 'Количество ингредиента должно быть в формате целого числа'
+        }
+    )
     measurement_unit = serializers.CharField(read_only=True, source=
                                              'ingredient.measurement_unit')
+
+    def validate_amount(self, data):
+        if data < 1:
+            raise serializers.ValidationError(
+                'Введите целое число больше 0 для количества ингредиента'
+            )
+        return data
 
     class Meta:
         model = IngredientInRecipe
@@ -64,7 +76,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagsInRecipeSerializer(many=True, read_only=True)
     cooking_time = serializers.IntegerField(
         error_messages={
-            'invalid': 'Время готовки должно быть в формате целого числа'
+            'invalid': 'Время приготовления должно быть в формате целого числа'
         }
     )
     is_favorited = serializers.SerializerMethodField(
@@ -76,7 +88,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_cooking_time(self, data):
         if data < 1:
             raise serializers.ValidationError(
-                'Введите целое число больше 0 для времени готовки'
+                'Введите целое число больше 0 для времени приготовления'
             )
         return data
 

@@ -22,6 +22,7 @@ class UserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = StandardResultsSetPagination
 
     @action(methods=['get', 'delete'], detail=True)
     def subscribe(self, request, id=None):

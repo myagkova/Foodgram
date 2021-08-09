@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -68,6 +69,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
+        ingredients_data = self.request.data['ingredients']
+        for ingredient in ingredients_data:
+            if ingredient['amount'] < 0:
+                raise ValidationError(
+                    'Введите целое число больше 0 для количества ингредиента')
+
         serializer.save(
             author=self.request.user,
             ingredients=self.request.data['ingredients'],

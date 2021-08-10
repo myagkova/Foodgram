@@ -1,10 +1,8 @@
-from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import APIException
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
@@ -58,10 +56,6 @@ class IngredientInRecipeViewSet(viewsets.ModelViewSet):
     queryset = IngredientInRecipe.objects.all()
     serializer_class = IngredientInRecipeSerializer
     permission_classes = [IsAuthenticated]
-
-class InvalidAmountException(APIException):
-    status_code = 400
-    default_detail = 'Введите целое число больше 0 для количества ингредиента'
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

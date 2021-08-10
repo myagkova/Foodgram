@@ -82,7 +82,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
             if ingredient['id'] in ingredients_set:
                 raise serializers.ValidationError(
-                    'Такой ингредиент уже есть в рецепте'
+                    'Ингредиенты в рецепте не должны повторяться'
                 )
             ingredients_set.add(ingredient['id'])
         tags_data = validated_data.pop('tags')

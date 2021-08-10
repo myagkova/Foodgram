@@ -87,11 +87,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         for ingredient_json in ingredients_data:
             ingredient = get_object_or_404(Ingredient, id=ingredient_json['id'])
-            if int(ingredient['amount']) < 0:
+            if int(ingredient_json['amount']) < 0:
                 raise serializers.ValidationError(
                     'Введите целое число больше 0 для количества ингредиента'
                 )
-            if ingredient['id'] in ingredients_data:
+            if ingredient_json['id'] in ingredients_data:
                 raise serializers.ValidationError(
                     'Такой ингредиент уже есть в рецепте'
                 )

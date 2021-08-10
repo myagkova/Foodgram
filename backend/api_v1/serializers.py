@@ -91,7 +91,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Введите целое число больше 0 для количества ингредиента'
                 )
-            if ingredient_json['id'] in ingredients_data:
+            if ingredient_json['id'] in recipe:
                 raise serializers.ValidationError(
                     'Такой ингредиент уже есть в рецепте'
                 )

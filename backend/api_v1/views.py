@@ -74,10 +74,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def perform_create(self, serializer):
-        ingredients_data = self.request.data['ingredients']
-        for ingredient in ingredients_data:
-            if int(ingredient['amount']) < 0:
-                raise InvalidAmountException()
+        # ingredients_data = self.request.data['ingredients']
+        # for ingredient in ingredients_data:
+        #     if int(ingredient['amount']) < 0:
+        #         raise InvalidAmountException()
 
         serializer.save(
             author=self.request.user,

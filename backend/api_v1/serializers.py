@@ -39,6 +39,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(read_only=True, source='ingredient.name')
+    amount = serializers.IntegerField()
     measurement_unit = serializers.CharField(read_only=True, source=
                                              'ingredient.measurement_unit')
 
@@ -73,6 +74,11 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
+        for ingredient in ingredients_data:
+            if int(ingredient['amount']) < 0:
+                raise serializers.ValidationError(
+                    'Введите целое число больше 0 для количества ингредиента'
+                )
         tags_data = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         for ingredient_json in ingredients_data:
